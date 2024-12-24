@@ -1,0 +1,42 @@
+image:docker:20.10.16
+
+services:
+  - docker:dind
+
+image: docker:20.10.16
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - echo "Building Go binary..."
+    - docker build -t $IMAGE_TAG .
+  only:
+    - main
+
+test:
+  stage: test
+  script:
+    - echo "Running tests (placeholder)"
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Pushing Docker image..."
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker push $IMAGE_TAG
+  only:
+    - main
